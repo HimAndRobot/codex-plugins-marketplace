@@ -1,0 +1,40 @@
+{
+  "name": "prompt-generator",
+  "version": "0.1.0",
+  "description": "OpenAI-guided prompt generation, update, and real execution review workflows for Codex.",
+  "author": {
+    "name": "Gean pedro",
+    "email": "geanpn@gmail.com",
+    "url": "https://github.com/HimAndRobot"
+  },
+  "homepage": "https://github.com/HimAndRobot/codex-plugins-marketplace",
+  "repository": "https://github.com/HimAndRobot/codex-plugins-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "prompting",
+    "prompt-engineering",
+    "prompt-review",
+    "codex",
+    "openai"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Prompt Generator",
+    "shortDescription": "Generate, update, and review OpenAI prompts",
+    "longDescription": "Prompt Generator helps create and improve prompts for supported OpenAI models using bundled model guidance and real Codex backend review runs.",
+    "developerName": "Prompt Generator",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Generate a prompt for this behavior.",
+      "Update this prompt for GPT-5.5.",
+      "Review this prompt with real Codex backend tests."
+    ],
+    "brandColor": "#10A37F",
+    "screenshots": []
+  }
+}
