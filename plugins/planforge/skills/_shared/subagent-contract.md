@@ -2,18 +2,20 @@
 
 Use this reference when executing a PlanForge plan in subagent mode.
 
-PlanForge keeps the Superpowers dispatch mechanics because they are reliable. The review strategy is simplified, but subagent context discipline should stay strong.
+PlanForge keeps the Superpowers dispatch mechanics because they are reliable. The only intended per-task change is replacing the original spec-reviewer and code-quality-reviewer subagent loops with orchestrator review and correction. PlanForge adds one separate final review for the whole implementation.
 
 ## Core Principles
 
-- Fresh implementer subagent per task.
+- Fresh implementer subagent per task, executed sequentially.
 - Implementers get curated context, not the orchestrator's session history.
 - The orchestrator reads the plan and extracts the task.
 - The orchestrator gives the implementer the full task text and only the needed shared context.
+- The orchestrator gathers task context before dispatching the implementer, or after the implementer reports back during review before the next task.
 - The implementer should not have to read the whole plan independently.
 - The implementer may ask questions before or during work.
 - The orchestrator answers questions clearly before letting work continue.
-- Do not dispatch implementation subagents in parallel when their edits may conflict.
+- The implementer implements, tests, verifies, self-reviews, and reports back.
+- Do not dispatch implementation subagents in parallel.
 
 ## Implementer Prompt Requirements
 
@@ -28,6 +30,17 @@ Every implementer dispatch includes:
 - verification expected for the task;
 - Git policy: no commits, pushes, or PRs;
 - status contract.
+
+Also include the Superpowers implementer guardrails:
+
+- ask questions before starting when requirements, acceptance criteria, approach, dependencies, or assumptions are unclear;
+- implement exactly what the task specifies;
+- write tests when appropriate and verify the implementation;
+- do not commit, push, or create PRs;
+- self-review before reporting;
+- follow the file structure in the plan;
+- keep files focused and follow existing codebase patterns;
+- escalate with `NEEDS_CONTEXT` or `BLOCKED` rather than guessing.
 
 ## Status Contract
 
@@ -57,7 +70,7 @@ Never force the same retry after `BLOCKED` without changing context, task shape,
 
 ## Per-Task Review
 
-PlanForge does not call separate formal review agents after every task by default.
+PlanForge does not call the original Superpowers per-task spec-reviewer and code-quality-reviewer subagents by default.
 
 The orchestrator reviews each task for:
 
@@ -67,5 +80,9 @@ The orchestrator reviews each task for:
 - verification result;
 - obvious code quality problems;
 - no automatic commits.
+
+The orchestrator corrects valid per-task issues after review. Small corrections may be edited directly. Larger missing implementation should become a focused corrective task instead of hidden "central integration" work.
+
+The orchestrator is not an extra parallel implementer or side investigator. While an implementer subagent is running, it should wait, answer implementer questions, and keep coordination state. It should tell the user it is waiting for the implementer rather than claiming it is doing side work. It must not read files, inspect another part of the app, trace UI/backend integration paths, prepare hidden implementation, or implement other plan tasks in parallel. Read and review after the implementer reports back, then resolve issues before starting the next task. If the active implementer needs missing context, gather only that requested context and hand it back to the implementer.
 
 The final separate review agent handles the deeper review after all tasks.

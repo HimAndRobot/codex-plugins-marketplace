@@ -8,8 +8,6 @@ Personal Codex plugin marketplace for HimAndRobot.
 
 PlanForge is a lightweight Superpowers-inspired planning and execution workflow for Codex.
 
-Source plugin repository: https://github.com/HimAndRobot/Planforge
-
 Marketplace entry: `planforge`
 
 ## Structure
@@ -20,4 +18,4 @@ plugins/planforge/.codex-plugin/plugin.json
 plugins/planforge/skills/
 ```
 
-The marketplace uses Codex's local marketplace format: each entry points to a plugin folder inside this repository.
+The marketplace is the source of truth for the included plugins. PlanForge lives inside `plugins/planforge` so marketplace installs use the same copy that is maintained here.

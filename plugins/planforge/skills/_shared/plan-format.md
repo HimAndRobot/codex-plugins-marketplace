@@ -15,7 +15,7 @@ Every plan starts with:
 ```markdown
 # [Plan Name] Implementation Plan
 
-> **For agentic workers:** This plan is the source of truth. Execute task-by-task using PlanForge `execute-plan` in subagent mode or inline mode. Do not create commits. Ask once before creating a branch during execution. Keep checklist status updated.
+> **For agentic workers:** This plan is the source of truth. Execute task-by-task using PlanForge `execute-plan` in subagent mode or inline mode. Do not create commits. Ask once before creating a branch during execution. Do not use the `codex/` branch prefix unless the user explicitly asks for it. Keep checklist status updated.
 
 **Mode:** brainstorm-plan | brainstorm-fix | rework-plan
 **Goal:** [One sentence]
@@ -92,6 +92,8 @@ Each task uses this structure:
 - [ ] Step 3: ...
 ```
 
+The task shape above is a template only. Final plans must replace every placeholder and ellipsis with concrete content.
+
 ## Writing Rules
 
 - Explain intent, decisions, constraints, and verification clearly.
@@ -101,6 +103,9 @@ Each task uses this structure:
 - Prefer TDD or regression-test-first task ordering when practical.
 - Include exact commands and expected results when known.
 - If commands are unknown, instruct the executor to discover project-standard checks before completion.
+- Never leave `TBD`, `TODO`, `...`, "fill in", "implement later", "add appropriate handling", or similar placeholder text in a final plan.
+- Do not write "similar to Task N"; repeat the relevant detail so tasks can be executed independently.
+- Do not write vague steps such as "write tests" without saying what behavior should be tested.
 - Write plans for agents and humans: clear, concrete, and bounded.
 
 ## Self-Review Rules

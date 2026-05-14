@@ -28,7 +28,7 @@ Read these shared references as needed:
 2. Extract all tasks with their full text and shared context.
 3. Create a visible task checklist for coordination.
 4. Ask once: should I create a branch for this task?
-5. If yes, create the branch and continue there.
+5. If yes, propose and create a short descriptive branch name without any required prefix.
 6. If no, continue on the current branch.
 7. Ask execution mode:
    - Subagent mode
@@ -43,17 +43,29 @@ Do not ask "should I continue?" between tasks. Continue until all tasks are comp
 - Never create a PR automatically.
 - Never ask to commit at the end.
 - Only create a branch if the user approves at execution start.
+- Do not use the `codex/` branch prefix unless the user explicitly asks for it.
+- Propose the branch name yourself from the plan title or task, using a plain descriptive name such as `planforge-review-flow` or `fix-auth-timeout`; do not make the user name it unless they ask to.
 - If the repository is on `main` or `master`, do not start implementation there without explicit user approval.
 
 ## Subagent Mode
 
-Use the Superpowers dispatch pattern:
+Use the Superpowers `subagent-driven-development` pattern, with only these PlanForge changes:
 
-- Fresh implementer subagent per task.
+- remove the per-task spec-reviewer subagent loop;
+- remove the per-task code-quality-reviewer subagent loop;
+- let the orchestrator review and correct after each implementer task;
+- add one separate final reviewer for the whole implementation.
+
+Keep the rest of the Superpowers mechanics:
+
+- Fresh implementer subagent per task, executed sequentially.
 - Implementers receive curated context, not the orchestrator's session history.
 - The orchestrator provides the full task text, relevant design decisions, boundaries, likely files, and verification expectations.
+- Any codebase exploration needed to frame a task must happen before dispatching that task, as part of context curation, or after the implementer reports back as part of review before the next task.
 - The implementer should not have to read the whole plan independently.
-- Do not dispatch multiple implementation subagents in parallel when their edits could conflict.
+- Implementers may ask questions before or during work; answer before letting them proceed.
+- Implementers implement, test, verify, self-review, and report back.
+- Do not dispatch multiple implementation subagents in parallel.
 
 Each implementer must report:
 
@@ -70,11 +82,30 @@ Each implementer must report:
 4. If status is `DONE_WITH_CONCERNS`, read concerns before proceeding.
 5. If status is `NEEDS_CONTEXT`, provide context and redispatch.
 6. If status is `BLOCKED`, decide whether to add context, split the task, use a stronger model, or ask the user.
-7. Review locally as orchestrator for plan compliance, scope, verification, and obvious quality issues.
-8. Fix small issues directly or send a short corrective follow-up to the implementer.
+7. Review locally as orchestrator for plan compliance, scope, verification, and obvious quality issues. This replaces the original Superpowers per-task spec-reviewer and code-quality-reviewer loops.
+8. Correct valid per-task issues. Small corrections may be edited directly by the orchestrator; larger missing implementation should be sent back as a focused corrective task.
 9. Update checklist status and continue to the next task.
 
-PlanForge intentionally does not call separate spec-reviewer and code-quality-reviewer agents after every task by default. The orchestrator owns that lightweight review loop.
+The orchestrator must not invent a new "central integration" feature slice after subagents finish. If substantial integration work is required, it must already be an explicit plan task or become a focused corrective task. Integration after subagents means reviewing, reconciling, fixing valid issues, updating checklists, and verifying the planned work.
+
+While an implementer is working, the orchestrator stays in the Superpowers controller role: it waits for the implementer report, answers implementer questions, and keeps coordination state. It should tell the user it is waiting for the implementer rather than claiming it will work "around" the task. Do not read files, trace integration paths, or inspect another area of the codebase in parallel. Read/review only after the implementer reports back, then resolve issues before starting the next task. If the active implementer needs missing context, gather only that requested context and give it back to the implementer.
+
+## Implementer Prompt Requirements
+
+Each implementer dispatch should preserve the Superpowers implementer template, adjusted only for PlanForge's no-commit policy.
+
+Include:
+
+- task name and full task text from the plan;
+- scene-setting context: where the task fits, dependencies, and architecture;
+- a "Before You Begin" section telling the implementer to ask questions about requirements, acceptance criteria, approach, dependencies, or assumptions before starting;
+- a job list: implement exactly the task, write tests when appropriate, verify, self-review, report back, and do not commit;
+- working directory;
+- permission to pause and ask questions if anything unexpected appears;
+- code organization guidance: follow plan structure, keep files focused, follow existing patterns, avoid unplanned restructuring;
+- escalation guidance: use `NEEDS_CONTEXT` or `BLOCKED` rather than guessing;
+- self-review checklist covering completeness, quality, discipline, and testing;
+- report format with status, implemented work, verification results, changed files, self-review findings, and concerns.
 
 ## Inline Mode
 
@@ -106,6 +137,10 @@ Never:
 - ignore subagent questions;
 - force the same retry after `BLOCKED` without changing context or approach;
 - let the implementer self-review replace orchestrator review;
+- read files, trace integration paths, or inspect another code area in parallel while an implementer is working;
+- implement plan tasks in parallel as an extra implementer while subagents are running;
+- dispatch multiple implementation subagents in parallel;
+- invent unplanned central implementation work after subagents finish;
 - skip final separate review;
 - skip fresh verification;
 - accept "close enough" when the plan requirement is unmet;
